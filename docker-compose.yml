@@ -1,0 +1,13 @@
+services:
+  scraper:
+    image: ghcr.io/aerya/correzeboostemploi:latest
+    container_name: correzeboostemploi
+    restart: always
+    environment:
+      DISCORD_WEBHOOK_URL: "https://discord.com/api/webhooks/XXXXXXXX/YYYYYYYY"
+      BANNED_KEYWORDS: "comptable,ménage,cuisine,cuisinier,cuisinière,plongeur,aide-soignant"
+      SCHEDULE_MORNING: "10:00"
+      SCHEDULE_EVENING: "19:00"
+      MAX_PAGES: "10"
+    volumes:
+      - /home/aerya/docker/correzeboostemploi:/data

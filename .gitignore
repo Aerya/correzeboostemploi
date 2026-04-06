@@ -1,0 +1,18 @@
+# Config locale avec secrets
+config.json
+
+# Données persistées
+seen_offers.json
+scraper.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/

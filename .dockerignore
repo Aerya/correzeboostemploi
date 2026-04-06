@@ -1,0 +1,10 @@
+.git
+.gitignore
+*.md
+config.json
+seen_offers.json
+scraper.log
+setup_cron.sh
+__pycache__/
+*.pyc
+*.pyo
