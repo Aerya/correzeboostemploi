@@ -6,10 +6,14 @@ Surveille automatiquement les offres **CDI/CDD** publiées dans la semaine sur [
 
 ## Fonctionnement
 
-- Scrape les offres deux fois par jour (10h et 19h par défaut)
+- Scrape les offres deux fois par jour (10h et 19h par défaut), offres en CDD & CDI, sur 1 semaine
 - Mémorise les offres déjà envoyées → **aucun doublon** entre les lancements
 - Filtre les offres contenant des mots bannis (titre ou nom d'entreprise)
 - Un message Discord par offre, avec titre, entreprise, ville, contrat, salaire et lien
+
+<div align="center">
+  <img src="https://i.imgur.com/D743soX.png" alt="Aperçu Discord" />
+</div>
 
 ---
 
