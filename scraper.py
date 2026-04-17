@@ -111,10 +111,10 @@ def parse_offers(html: str) -> list[dict]:
             gtm     = json.loads(link.get("data-gtm-product-click-param", "{}"))
             product = gtm.get("product_data", [{}])[0]
             title    = product.get("product",          title)
-            company  = product.get("product_company",  "")
-            location = product.get("product_city",     "")
-            contract = product.get("product_contract", "")
-            date     = product.get("product_date",     "")
+            company  = product.get("product_company")  or ""
+            location = product.get("product_city")     or ""
+            contract = product.get("product_contract") or ""
+            date     = product.get("product_date")     or ""
             sal      = product.get("product_salary")
             if sal:
                 salary = f"{int(sal):,} €/an".replace(",", " ")
@@ -163,45 +163,47 @@ def run() -> None:
     new_count = banned_count = already_seen_count = 0
     page = 1
 
-    while page <= cfg["max_pages"]:
-        url = SEARCH_URL if page == 1 else f"{SEARCH_URL}&page={page}"
-        log.info("Scraping page %d …", page)
+    try:
+        while page <= cfg["max_pages"]:
+            url = SEARCH_URL if page == 1 else f"{SEARCH_URL}&page={page}"
+            log.info("Scraping page %d …", page)
 
-        html = fetch_page(url)
-        if not html:
-            log.error("Impossible de récupérer la page %d, arrêt.", page)
-            break
+            html = fetch_page(url)
+            if not html:
+                log.error("Impossible de récupérer la page %d, arrêt.", page)
+                break
 
-        offers = parse_offers(html)
-        log.info("  %d offre(s) sur cette page.", len(offers))
-        if not offers:
-            break
+            offers = parse_offers(html)
+            log.info("  %d offre(s) sur cette page.", len(offers))
+            if not offers:
+                break
 
-        for offer in offers:
-            if offer["id"] in seen:
-                already_seen_count += 1
-                continue
-            seen.add(offer["id"])
+            for offer in offers:
+                if offer["id"] in seen:
+                    already_seen_count += 1
+                    continue
+                seen.add(offer["id"])
 
-            title_lower = offer["title"].lower()
-            company_lower = offer["company"].lower()
-            if any(kw.lower() in title_lower or kw.lower() in company_lower
-                   for kw in cfg["banned"]):
-                log.info("  [FILTRE]  %s", offer["title"])
-                banned_count += 1
-                continue
+                title_lower   = (offer["title"]   or "").lower()
+                company_lower = (offer["company"] or "").lower()
+                if any(kw.lower() in title_lower or kw.lower() in company_lower
+                       for kw in cfg["banned"]):
+                    log.info("  [FILTRE]  %s", offer["title"])
+                    banned_count += 1
+                    continue
 
-            log.info("  [ENVOI]   %s — %s (%s)", offer["title"], offer["company"], offer["location"])
-            send_discord(cfg["webhook"], offer)
-            new_count += 1
-            time.sleep(0.5)
+                log.info("  [ENVOI]   %s — %s (%s)", offer["title"], offer["company"], offer["location"])
+                send_discord(cfg["webhook"], offer)
+                new_count += 1
+                time.sleep(0.5)
 
-        if not has_next_page(html):
-            break
-        page += 1
-        time.sleep(1)
+            if not has_next_page(html):
+                break
+            page += 1
+            time.sleep(1)
+    finally:
+        save_seen(cfg["seen_file"], seen)
 
-    save_seen(cfg["seen_file"], seen)
     log.info(
         "Terminé : %d envoyée(s), %d filtrée(s), %d déjà vue(s).",
         new_count, banned_count, already_seen_count,

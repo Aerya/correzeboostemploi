@@ -9,5 +9,6 @@ services:
       SCHEDULE_MORNING: "10:00"
       SCHEDULE_EVENING: "19:00"
       MAX_PAGES: "10"
+      DATA_DIR: /data
     volumes:
       - /home/aerya/docker/correzeboostemploi:/data
