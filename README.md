@@ -6,7 +6,7 @@ Surveille automatiquement les offres **CDI/CDD** publiées dans la semaine sur [
 
 ## Fonctionnement
 
-- Scrape les offres deux fois par jour (10h et 19h par défaut), offres en CDD & CDI, sur 1 semaine
+- Scrape les offres toutes les 2h entre 7h et 19h par défaut (soit 7 passages/jour)
 - Mémorise les offres déjà envoyées → **aucun doublon** entre les lancements
 - Filtre les offres contenant des mots bannis (titre ou nom d'entreprise)
 - Un message Discord par offre, avec titre, entreprise, ville, contrat, salaire et lien
@@ -33,8 +33,9 @@ Surveille automatiquement les offres **CDI/CDD** publiées dans la semaine sur [
 environment:
   DISCORD_WEBHOOK_URL: "https://discord.com/api/webhooks/..."
   BANNED_KEYWORDS: "comptable,ménage,cuisine,cuisinier,plongeur"
-  SCHEDULE_MORNING: "10:00"
-  SCHEDULE_EVENING: "19:00"
+  SCHEDULE_START: "7"
+  SCHEDULE_END: "19"
+  SCHEDULE_INTERVAL_HOURS: "2"
   MAX_PAGES: "10"
 ```
 
@@ -44,19 +45,23 @@ environment:
 docker compose up -d
 ```
 
-Les offres déjà vues sont persistées dans un volume Docker (`scraper-data`).
+Les offres déjà vues sont persistées dans un volume monté sur l'hôte.
 
 ---
 
 ## Variables d'environnement
 
-| Variable              | Obligatoire | Défaut  | Description                                              |
-|-----------------------|-------------|---------|----------------------------------------------------------|
-| `DISCORD_WEBHOOK_URL` | ✅           | —       | URL du webhook Discord                                   |
-| `BANNED_KEYWORDS`     | ❌           | _(vide)_ | Mots à bannir, séparés par des virgules                  |
-| `SCHEDULE_MORNING`    | ❌           | `10:00` | Heure du scraping du matin (HH:MM)                       |
-| `SCHEDULE_EVENING`    | ❌           | `19:00` | Heure du scraping du soir (HH:MM)                        |
-| `MAX_PAGES`           | ❌           | `10`    | Nombre max de pages à scraper (15 offres/page)           |
+| Variable                   | Obligatoire | Défaut   | Description                                              |
+|----------------------------|-------------|----------|----------------------------------------------------------|
+| `DISCORD_WEBHOOK_URL`      | ✅           | —        | URL du webhook Discord                                   |
+| `BANNED_KEYWORDS`          | ❌           | _(vide)_ | Mots à bannir, séparés par des virgules                  |
+| `SCHEDULE_START`           | ❌           | `7`      | Heure de début de la plage de scraping (entier, 0–23)    |
+| `SCHEDULE_END`             | ❌           | `19`     | Heure de fin de la plage de scraping (entier, 0–23)      |
+| `SCHEDULE_INTERVAL_HOURS`  | ❌           | `2`      | Intervalle en heures entre chaque scraping               |
+| `MAX_PAGES`                | ❌           | `10`     | Nombre max de pages à scraper (15 offres/page)           |
+
+> Avec les valeurs par défaut, le scraper tourne à : **7h, 9h, 11h, 13h, 15h, 17h et 19h**.  
+> Un lancement immédiat est aussi effectué au démarrage du conteneur (si dans la plage horaire).
 
 ---
 
@@ -91,7 +96,10 @@ docker build -t correzeboostemploi .
 docker run -d \
   -e DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..." \
   -e BANNED_KEYWORDS="comptable,ménage" \
-  -v scraper-data:/data \
+  -e SCHEDULE_START="7" \
+  -e SCHEDULE_END="19" \
+  -e SCHEDULE_INTERVAL_HOURS="2" \
+  -v /home/aerya/docker/correzeboostemploi:/data \
   correzeboostemploi
 ```
 
@@ -118,7 +126,6 @@ docker pull ghcr.io/aerya/correzeboostemploi:latest
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
-├── .env.example        # Template de configuration
 └── .github/
     └── workflows/
         └── docker.yml  # CI/CD — build et push GHCR

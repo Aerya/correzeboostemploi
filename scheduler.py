@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-Planificateur — lance scraper.run() selon SCHEDULE_MORNING et SCHEDULE_EVENING.
-Tourne en boucle infinie (point d'entrée du conteneur Docker).
-"""
-
 import logging
 import os
 import time
@@ -19,8 +14,9 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-MORNING = os.environ.get("SCHEDULE_MORNING", "10:00")
-EVENING = os.environ.get("SCHEDULE_EVENING", "19:00")
+START_HOUR = int(os.environ.get("SCHEDULE_START", "7"))
+END_HOUR   = int(os.environ.get("SCHEDULE_END",   "19"))
+INTERVAL   = int(os.environ.get("SCHEDULE_INTERVAL_HOURS", "2"))
 
 
 def job():
@@ -32,15 +28,25 @@ def job():
     log.info("=== Scraper terminé ===")
 
 
+def job_if_in_range():
+    current_hour = time.localtime().tm_hour
+    if START_HOUR <= current_hour <= END_HOUR:
+        job()
+    else:
+        log.info("Hors plage horaire (%dh-%dh), scraping ignoré.", START_HOUR, END_HOUR)
+
+
 if __name__ == "__main__":
-    log.info("Planificateur démarré — horaires : %s et %s", MORNING, EVENING)
+    log.info(
+        "Planificateur démarré — toutes les %dh entre %dh et %dh",
+        INTERVAL, START_HOUR, END_HOUR,
+    )
 
-    schedule.every().day.at(MORNING).do(job)
-    schedule.every().day.at(EVENING).do(job)
+    schedule.every(INTERVAL).hours.do(job_if_in_range)
 
-    # Lancement immédiat au démarrage du conteneur
+    # Lancement immédiat au démarrage si dans la plage
     log.info("Lancement initial au démarrage…")
-    job()
+    job_if_in_range()
 
     while True:
         schedule.run_pending()

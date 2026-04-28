@@ -6,8 +6,9 @@ services:
     environment:
       DISCORD_WEBHOOK_URL: "https://discord.com/api/webhooks/XXXXXXXX/YYYYYYYY"
       BANNED_KEYWORDS: "comptable,ménage,cuisine,cuisinier,cuisinière,plongeur,aide-soignant"
-      SCHEDULE_MORNING: "10:00"
-      SCHEDULE_EVENING: "19:00"
+      SCHEDULE_START: "7"
+      SCHEDULE_END: "19"
+      SCHEDULE_INTERVAL_HOURS: "2"
       MAX_PAGES: "10"
       DATA_DIR: /data
     volumes:
