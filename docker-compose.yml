@@ -5,6 +5,7 @@ services:
     restart: always
     environment:
       DISCORD_WEBHOOK_URL: "https://discord.com/api/webhooks/XXXXXXXX/YYYYYYYY"
+      SEARCH_URL: "https://www.correzeboostemploi.fr/offres?what%5Btype%5D=&what%5Bsearch%5D=&where%5Bsearch%5D=Corr%C3%A8ze&where%5Bperimeter%5D=&where%5Bdepartements%5D%5B0%5D=Correze-departement&contractTypes%5B%5D=CDI&contractTypes%5B%5D=CDD&publicationDateRange=OneWeek"
       BANNED_KEYWORDS: "comptable,ménage,cuisine,cuisinier,cuisinière,plongeur,aide-soignant"
       SCHEDULE_START: "7"
       SCHEDULE_END: "19"
