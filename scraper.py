@@ -30,7 +30,6 @@ log = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 BASE_URL = "https://www.correzeboostemploi.fr"
 
-SEARCH_URL = (
 DEFAULT_SEARCH_URL = (
     "https://www.correzeboostemploi.fr/offres"
     "?what%5Btype%5D=&what%5Bsearch%5D="
