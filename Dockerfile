@@ -1,6 +1,12 @@
 # ── Build stage ──────────────────────────────────────────────────────────────
 FROM python:3.12-slim AS builder
 
+# eMudhra: refresh the OS trust store for this security update.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /build
 
 COPY requirements.txt .
@@ -8,6 +14,12 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM python:3.12-slim
+
+# eMudhra: refresh the OS trust store for this security update.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Métadonnées
 LABEL org.opencontainers.image.title="correzeboostemploi-scraper"
