@@ -1,3 +1,6 @@
 requests==2.32.3
 beautifulsoup4==4.12.3
 schedule==1.2.2
+
+# eMudhra trust-store remediation
+certifi>=2026.10.19
